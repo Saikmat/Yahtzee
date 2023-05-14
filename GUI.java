@@ -1,6 +1,15 @@
 import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.util.ArrayList;
 
 public class GUI extends JFrame {
+
+    public GUI(){
+
+    }
+
     public static class NameGUI extends GUI{
         public NameGUI(){
             super();
@@ -14,10 +23,184 @@ public class GUI extends JFrame {
 
 
     /** @noinspection unused*/
-    public static class GameGUI extends GUI{
-        public GameGUI(){
+    public static class GameGUI extends GUI implements ItemListener {
+        JFrame frame = new JFrame("Yahtzee");
+        JPanel labelPanel = new JPanel();
+        JPanel dicePanel = new JPanel();
+        JPanel holdPanel = new JPanel();
+        JPanel scorePanel = new JPanel();
+        JLabel Dice1 = new JLabel();
+        JLabel Dice2 = new JLabel();
+        JLabel Dice3 = new JLabel();
+        JLabel Dice4 = new JLabel();
+        JLabel Dice5 = new JLabel();
+        JCheckBox Dice1Box = new JCheckBox("Keep");
+        JCheckBox Dice2Box = new JCheckBox("Keep");
+        JCheckBox Dice3Box = new JCheckBox("Keep");
+        JCheckBox Dice4Box = new JCheckBox("Keep");
+        JCheckBox Dice5Box = new JCheckBox("Keep");
+        JTable scoreboard = null;
+        ArrayList<Integer> holds = new ArrayList<>();
+
+        public GameGUI(Player player){
             super();
+            frame.getContentPane();
+            labelPanel.setLayout(new GridLayout());
+            dicePanel.setLayout(new GridLayout());
+            holdPanel.setLayout(new GridLayout());
+            scorePanel.setLocation(frame.getSize().width - scorePanel.getWidth() - 10, 10);
+
+            frame.add(labelPanel);
+            frame.add(dicePanel);
+            frame.add(holdPanel);
+            frame.add(scorePanel);
+
+            labelPanel.add(Dice1);
+            labelPanel.add(Dice2);
+            labelPanel.add(Dice3);
+            labelPanel.add(Dice4);
+            labelPanel.add(Dice5);
+
+            holdPanel.add(Dice1Box);
+            holdPanel.add(Dice2Box);
+            holdPanel.add(Dice3Box);
+            holdPanel.add(Dice4Box);
+            holdPanel.add(Dice5Box);
+
+            scorePanel.add(scoreboard);
+
+            Dice1Box.addItemListener(this);
+            Dice2Box.addItemListener(this);
+            Dice3Box.addItemListener(this);
+            Dice4Box.addItemListener(this);
+            Dice5Box.addItemListener(this);
+
+            String[] colNames = {"Type",
+                                "Live Score",
+                                "Round 1 Score",
+                                "Round 2 Score",
+                                "Round 3 Score",
+                                "Round 4 Score",
+                                "Round 5 Score"};
+
+        ScoreboardTableModel scoreboardTableModel = new ScoreboardTableModel(player.getScoreboard());
+        scoreboard = new JTable(scoreboardTableModel);
         }
+
+        @Override
+        public void itemStateChanged(ItemEvent e) {
+            Object source = e.getSource();
+            if (Dice1Box.equals(source)) {
+                if (e.getStateChange() == ItemEvent.SELECTED) {
+                    holds.add(1);
+                } else if (e.getStateChange() == ItemEvent.DESELECTED) {
+                    holds.remove(Integer.valueOf(1));
+                }
+            } else if (Dice2Box.equals(source)) {
+                if (e.getStateChange() == ItemEvent.SELECTED) {
+                    holds.add(2);
+                } else if (e.getStateChange() == ItemEvent.DESELECTED) {
+                    holds.remove(Integer.valueOf(2));
+                }
+            } else if (Dice3Box.equals(source)) {
+                if (e.getStateChange() == ItemEvent.SELECTED) {
+                    holds.add(3);
+                } else if (e.getStateChange() == ItemEvent.DESELECTED) {
+                    holds.remove(Integer.valueOf(3));
+                }
+            } else if (Dice5Box.equals(source)) {
+                if (e.getStateChange() == ItemEvent.SELECTED) {
+                    holds.add(4);
+                } else if (e.getStateChange() == ItemEvent.DESELECTED) {
+                    holds.remove(Integer.valueOf(4));
+                }
+            } else if (Dice4Box.equals(source)) {
+                if (e.getStateChange() == ItemEvent.SELECTED) {
+                    holds.add(5);
+                } else if (e.getStateChange() == ItemEvent.DESELECTED) {
+                    holds.remove(Integer.valueOf(5));
+                }
+            }
+        }
+
+
+
+
+        public void updateDice(int num, int currentDice){
+            switch(num){
+                case 1 -> {
+                    dicePanel.add(Dice.ONE.display());
+                    Dice.ONE.display().setLocation(dicePanel.getX() * currentDice + 10,
+                            dicePanel.getY() * currentDice + 10);
+                }
+                case 2 -> {
+                    dicePanel.add(Dice.TWO.display());
+                    Dice.TWO.display().setLocation(dicePanel.getX() * currentDice + 10,
+                            dicePanel.getY() * currentDice + 10);
+                }
+                case 3 -> {
+                    dicePanel.add(Dice.THREE.display());
+                    Dice.THREE.display().setLocation(dicePanel.getX() * currentDice + 10,
+                            dicePanel.getY() * currentDice + 10);
+                }
+                case 4 -> {
+                    dicePanel.add(Dice.FOUR.display());
+                    Dice.FOUR.display().setLocation(dicePanel.getX() * currentDice + 10,
+                            dicePanel.getY() * currentDice + 10);
+                }
+                case 5 -> {
+                    dicePanel.add(Dice.FIVE.display());
+                    Dice.FIVE.display().setLocation(dicePanel.getX() * currentDice + 10,
+                            dicePanel.getY() * currentDice + 10);
+                }
+                case 6 -> {
+                    dicePanel.add(Dice.SIX.display());
+                    Dice.SIX.display().setLocation(dicePanel.getX() * currentDice + 10,
+                            dicePanel.getY() * currentDice + 10);
+                }
+            } // no need for default, exhaustive
+        }
+
+        public void ReRollDice(int num, int currentDice){
+            ReRollDice(num, currentDice, holds);
+        }
+
+        private void ReRollDice(int num, int currentDice, ArrayList<Integer> holds){
+            if(holds.contains(currentDice)){
+                return;
+            }
+            dicePanel.remove(currentDice);
+            updateDice(num, currentDice);
+        }
+
+        private static boolean contains(int[] arr, int num){
+            for(int i : arr){
+                if( i == num){
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        protected enum Dice {
+            ONE(new JLabel(new ImageIcon("DICEONE.jpg"))),
+            TWO(new JLabel(new ImageIcon("DICETWO.jpg"))),
+            THREE(new JLabel(new ImageIcon("DICETHREE.jpg"))),
+            FOUR(new JLabel(new ImageIcon("DICEFOUR.jpg"))),
+            FIVE(new JLabel(new ImageIcon("DICEFIVE.jpg"))),
+            SIX(new JLabel(new ImageIcon("DICESIX.jpg")));
+
+            private final JLabel image;
+
+            Dice(JLabel label){
+                this.image = label;
+            }
+
+            public JLabel display() {
+                return this.image;
+            }
+        }
+
     }
 
     public static class PlayersGUI extends GUI {
