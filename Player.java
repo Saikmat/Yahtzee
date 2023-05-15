@@ -1,3 +1,5 @@
+import javax.swing.*;
+
 /** @noinspection ALL */ //remove at the end
 
 public class Player {

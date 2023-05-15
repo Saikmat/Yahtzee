@@ -3,6 +3,7 @@ import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class GUI extends JFrame {
 
@@ -24,26 +25,33 @@ public class GUI extends JFrame {
 
     /** @noinspection unused*/
     public static class GameGUI extends GUI implements ItemListener {
+        int turncount;
+
         JFrame frame = new JFrame("Yahtzee");
         JPanel labelPanel = new JPanel();
-        JPanel dicePanel = new JPanel();
+        static JPanel dicePanel = new JPanel();
         JPanel holdPanel = new JPanel();
         JPanel scorePanel = new JPanel();
+
         JLabel Dice1 = new JLabel();
         JLabel Dice2 = new JLabel();
         JLabel Dice3 = new JLabel();
         JLabel Dice4 = new JLabel();
         JLabel Dice5 = new JLabel();
+
         JCheckBox Dice1Box = new JCheckBox("Keep");
         JCheckBox Dice2Box = new JCheckBox("Keep");
         JCheckBox Dice3Box = new JCheckBox("Keep");
         JCheckBox Dice4Box = new JCheckBox("Keep");
         JCheckBox Dice5Box = new JCheckBox("Keep");
+        JButton RollButton = new JButton("Roll");
+        JButton[] scoreButtons = new JButton[13];
         JTable scoreboard = null;
-        ArrayList<Integer> holds = new ArrayList<>();
+        static ArrayList<Integer> holds = new ArrayList<>();
 
         public GameGUI(Player player){
             super();
+            turncount = 1;
             frame.getContentPane();
             labelPanel.setLayout(new GridLayout());
             dicePanel.setLayout(new GridLayout());
@@ -69,22 +77,36 @@ public class GUI extends JFrame {
 
             scorePanel.add(scoreboard);
 
+            Arrays.fill(scoreButtons, new JButton());
+
             Dice1Box.addItemListener(this);
             Dice2Box.addItemListener(this);
             Dice3Box.addItemListener(this);
             Dice4Box.addItemListener(this);
             Dice5Box.addItemListener(this);
+            RollButton.addItemListener(this);
+            for (JButton scoreButton : scoreButtons) {
+                scoreButton.addItemListener(this);
+            }
 
-            String[] colNames = {"Type",
-                                "Live Score",
-                                "Round 1 Score",
-                                "Round 2 Score",
-                                "Round 3 Score",
-                                "Round 4 Score",
+            String[] colNames = {"Type","Live Score","Round 1 Score","Round 2 Score","Round 3 Score","Round 4 Score",
                                 "Round 5 Score"};
 
-        ScoreboardTableModel scoreboardTableModel = new ScoreboardTableModel(player.getScoreboard());
-        scoreboard = new JTable(scoreboardTableModel);
+            Object[][] boardWithButtons =
+                    new Object[player.getScoreboard().length][player.getScoreboard()[0].length + 1];
+            for (int i = 0; i < player.getScoreboard().length; i++) {
+                System.arraycopy(player.getScoreboard()[i], 0, boardWithButtons[i], 0, player.getScoreboard()[0].length);
+                boardWithButtons[i][boardWithButtons.length - 1] = scoreButtons[i];
+            }
+            ScoreboardTableModel scoreboardTableModel = new ScoreboardTableModel(player.getScoreboard(),
+                    colNames);
+            scoreboard = new JTable(scoreboardTableModel);
+            scoreboard.setDefaultRenderer(JButton.class,
+                    new JTableButtonRenderer(scoreboard.getDefaultRenderer(JButton.class)));
+
+
+            setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+            setVisible(true);
         }
 
         @Override
@@ -108,26 +130,31 @@ public class GUI extends JFrame {
                 } else if (e.getStateChange() == ItemEvent.DESELECTED) {
                     holds.remove(Integer.valueOf(3));
                 }
-            } else if (Dice5Box.equals(source)) {
+            } else if (Dice4Box.equals(source)) {
                 if (e.getStateChange() == ItemEvent.SELECTED) {
                     holds.add(4);
                 } else if (e.getStateChange() == ItemEvent.DESELECTED) {
                     holds.remove(Integer.valueOf(4));
                 }
-            } else if (Dice4Box.equals(source)) {
+            } else if (Dice5Box.equals(source)) {
                 if (e.getStateChange() == ItemEvent.SELECTED) {
                     holds.add(5);
                 } else if (e.getStateChange() == ItemEvent.DESELECTED) {
                     holds.remove(Integer.valueOf(5));
                 }
+            } else if (RollButton.equals(source)){
+                if (e.getStateChange() == ItemEvent.SELECTED) {
+                    if (turncount == 3) {
+                        return;
+                    }
+                    turncount++;
+                    Main.ReRoll();
+                }
             }
         }
 
-
-
-
-        public void updateDice(int num, int currentDice){
-            switch(num){
+        public static void updateDice(int num, int currentDice){
+            switch (num) {
                 case 1 -> {
                     dicePanel.add(Dice.ONE.display());
                     Dice.ONE.display().setLocation(dicePanel.getX() * currentDice + 10,
@@ -161,11 +188,11 @@ public class GUI extends JFrame {
             } // no need for default, exhaustive
         }
 
-        public void ReRollDice(int num, int currentDice){
+        public static void ReRollDice(int num, int currentDice){
             ReRollDice(num, currentDice, holds);
         }
 
-        private void ReRollDice(int num, int currentDice, ArrayList<Integer> holds){
+        private static void ReRollDice(int num, int currentDice, ArrayList<Integer> holds){
             if(holds.contains(currentDice)){
                 return;
             }
