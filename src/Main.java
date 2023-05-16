@@ -10,10 +10,13 @@ public class Main {
     public static void main(String[] args) {
         GUI.MainMenu mainMenu = new GUI.MainMenu();
         GUI.PlayersGUI playersGUI = new GUI.PlayersGUI();
-        NUM_OF_PLAYERS = GUI.PlayersGUI.getNumOfPlayers();
-        game();
     }
-    public void makePlayers(){
+
+    public static void setNumOfPlayers(int numOfPlayers) {
+        NUM_OF_PLAYERS = numOfPlayers;
+    }
+
+    public void makePlayers() {
         for (int i = 0; i < NUM_OF_PLAYERS; i++) {
             GUI.NameGUI nameGUI = new GUI.NameGUI();
             players.add(new Player(GUI.NameGUI.playerName()));
@@ -21,9 +24,9 @@ public class Main {
     }
 
 
-    public static void game(){
+    public static void game() {
         int count = 1;
-        while(count < 13) {
+        while (count < 13) {
             //display the game screen
             GUI.GameGUI gameGUI = new GUI.GameGUI(players.get(turn));
             //display the dice for first turn

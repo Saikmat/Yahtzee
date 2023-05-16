@@ -1,5 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
@@ -157,32 +159,32 @@ public class GUI extends JFrame {
             switch (num) {
                 case 1 -> {
                     dicePanel.add(Dice.ONE.display());
-                    Dice.ONE.display().setLocation(dicePanel.getX() * currentDice + 10,
+                    dicePanel.getComponent(currentDice).setLocation(dicePanel.getX() * currentDice + 10,
                             dicePanel.getY() * currentDice + 10);
                 }
                 case 2 -> {
                     dicePanel.add(Dice.TWO.display());
-                    Dice.TWO.display().setLocation(dicePanel.getX() * currentDice + 10,
+                    dicePanel.getComponent(currentDice).setLocation(dicePanel.getX() * currentDice + 10,
                             dicePanel.getY() * currentDice + 10);
                 }
                 case 3 -> {
                     dicePanel.add(Dice.THREE.display());
-                    Dice.THREE.display().setLocation(dicePanel.getX() * currentDice + 10,
+                    dicePanel.getComponent(currentDice).setLocation(dicePanel.getX() * currentDice + 10,
                             dicePanel.getY() * currentDice + 10);
                 }
                 case 4 -> {
                     dicePanel.add(Dice.FOUR.display());
-                    Dice.FOUR.display().setLocation(dicePanel.getX() * currentDice + 10,
+                    dicePanel.getComponent(currentDice).setLocation(dicePanel.getX() * currentDice + 10,
                             dicePanel.getY() * currentDice + 10);
                 }
                 case 5 -> {
                     dicePanel.add(Dice.FIVE.display());
-                    Dice.FIVE.display().setLocation(dicePanel.getX() * currentDice + 10,
+                    dicePanel.getComponent(currentDice).setLocation(dicePanel.getX() * currentDice + 10,
                             dicePanel.getY() * currentDice + 10);
                 }
                 case 6 -> {
                     dicePanel.add(Dice.SIX.display());
-                    Dice.SIX.display().setLocation(dicePanel.getX() * currentDice + 10,
+                    dicePanel.getComponent(currentDice).setLocation(dicePanel.getX() * currentDice + 10,
                             dicePanel.getY() * currentDice + 10);
                 }
             } // no need for default, exhaustive
@@ -210,16 +212,16 @@ public class GUI extends JFrame {
         }
 
         protected enum Dice {
-            ONE(new JLabel(new ImageIcon("DICEONE.jpg"))),
-            TWO(new JLabel(new ImageIcon("DICETWO.jpg"))),
-            THREE(new JLabel(new ImageIcon("DICETHREE.jpg"))),
-            FOUR(new JLabel(new ImageIcon("DICEFOUR.jpg"))),
-            FIVE(new JLabel(new ImageIcon("DICEFIVE.jpg"))),
-            SIX(new JLabel(new ImageIcon("DICESIX.jpg")));
+            ONE(new JLabel(new ImageIcon(("assets\\die3.png")))),
+            TWO(new JLabel(new ImageIcon("assets\\die2.png"))),
+            THREE(new JLabel(new ImageIcon("assets\\die3.png"))),
+            FOUR(new JLabel(new ImageIcon("assets\\die4.png"))),
+            FIVE(new JLabel(new ImageIcon("assets\\die5.png"))),
+            SIX(new JLabel(new ImageIcon("assets\\die6.png")));
 
             private final JLabel image;
 
-            Dice(JLabel label){
+            Dice(JLabel label) {
                 this.image = label;
             }
 
@@ -230,20 +232,35 @@ public class GUI extends JFrame {
 
     }
 
-    public static class PlayersGUI extends GUI {
+    public static class PlayersGUI extends GUI implements ActionListener {
         JFrame playerCount = new JFrame("Number Of Players");
         JLabel label = new JLabel("How Many Players are playing (1-8) ");
         JTextField field = new JTextField();
+        JButton button = new JButton("Submit");
         static int NUM_OF_PLAYERS;
 
-        public PlayersGUI(){
+        public PlayersGUI() {
             super();
-            playerCount.getContentPane();
+            playerCount.getContentPane().setLayout(new GridLayout(1, 3));
             playerCount.add(label);
             playerCount.add(field);
-            NUM_OF_PLAYERS = Integer.parseInt(field.getText());
+            playerCount.add(button);
+            playerCount.pack();
+            button.addActionListener(this);
+            playerCount.setVisible(true);
+            playerCount.setLocationRelativeTo(null);
+            playerCount.setAlwaysOnTop(true);
         }
 
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            //noinspection StatementWithEmptyBody
+            if (e.getSource() == button) {
+
+            }
+        }
+
+        @SuppressWarnings("unused")
         public static int getNumOfPlayers() {
             return NUM_OF_PLAYERS;
         }
@@ -251,18 +268,16 @@ public class GUI extends JFrame {
 
     public static class MainMenu extends GUI{
         JFrame main = new JFrame("Main Menu");
-        JLabel label = new JLabel("Label");
 
 
         public MainMenu(){
             super();
             JFrame.setDefaultLookAndFeelDecorated(true);
             main.getContentPane();
-            main.add(label);
             main.setExtendedState(JFrame.MAXIMIZED_BOTH);
             main.setLocationRelativeTo(null);
             main.setVisible(true);
-            main.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+            main.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         }
     }
 
